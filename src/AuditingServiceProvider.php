@@ -11,8 +11,6 @@ class AuditingServiceProvider extends ServiceProvider
 {
     /**
      * Boot the service provider.
-     *
-     * @return void
      */
     public function boot()
     {
@@ -24,12 +22,10 @@ class AuditingServiceProvider extends ServiceProvider
      * Setup the config.
      *
      * @param $app
-     *
-     * @return void
      */
     protected function setupConfig($app)
     {
-        $source = realpath(__DIR__.'/../config/auditing.php');
+        $source = realpath(__DIR__ . '/../config/auditing.php');
 
         if ($app->runningInConsole()) {
             $this->publishes([$source => config_path('auditing.php')]);
@@ -42,12 +38,10 @@ class AuditingServiceProvider extends ServiceProvider
      * Setup the migrations.
      *
      * @param $app
-     *
-     * @return void
      */
     protected function setupMigrations($app)
     {
-        $source = realpath(__DIR__.'/../database/migrations/');
+        $source = realpath(__DIR__ . '/../database/migrations/');
 
         if ($app->runningInConsole()) {
             $this->publishes([$source => database_path('migrations')], 'migrations');
@@ -56,8 +50,6 @@ class AuditingServiceProvider extends ServiceProvider
 
     /**
      * Register the service provider.
-     *
-     * @return void
      */
     public function register()
     {

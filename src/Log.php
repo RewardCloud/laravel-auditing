@@ -5,6 +5,42 @@ namespace OwenIt\Auditing;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 
+/**
+ * App\Log.
+ *
+ * @property int                                           $id
+ * @property int                                           $user_id
+ * @property string                                        $owner_type
+ * @property int                                           $owner_id
+ * @property string                                        $old_value
+ * @property string                                        $new_value
+ * @property string                                        $type
+ * @property string                                        $route
+ * @property string                                        $ip
+ * @property \Carbon\Carbon                                $created_at
+ * @property \Carbon\Carbon                                $updated_at
+ * @property array                                         $custom_fields
+ * @property string                                        $custom_message
+ * @property string                                        $elapsed_time
+ * @property mixed                                         $new
+ * @property mixed                                         $old
+ * @property \Eloquent|\Illuminate\Database\Eloquent\Model $owner
+ * @property \App\User                                     $user
+ *
+ * @method static \Illuminate\Database\Query\Builder|Log whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereIp($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereNewValue($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereOldValue($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereOwnerId($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereOwnerType($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereRoute($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereType($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|Log whereUserId($value)
+ *
+ * @mixin \Eloquent
+ */
 class Log extends Model
 {
     /**
@@ -35,7 +71,7 @@ class Log extends Model
      */
     public function owner()
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
     }
 
     /**
@@ -51,7 +87,7 @@ class Log extends Model
     /**
      * Returns data of model.
      *
-     * @return object|false
+     * @return false|object
      */
     public function restore()
     {
@@ -105,9 +141,9 @@ class Log extends Model
     {
         if (class_exists($class = $this->getActualClassNameForMorph($this->owner_type))) {
             return $this->resolveCustomMessage($this->getCustomMessage($class));
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -121,21 +157,23 @@ class Log extends Model
             $customFields = [];
 
             foreach ($this->getCustomFields($class) as $field => $message) {
-                if (is_array($message) && isset($message[$this->type])) {
+                if (\is_array($message) && isset($message[$this->type])) {
                     $customFields[$field] = $this->resolveCustomMessage($message[$this->type]);
-                } elseif (is_string($message)) {
+                } elseif (\is_string($message)) {
                     $customFields[$field] = $this->resolveCustomMessage($message);
                 }
             }
 
             return array_filter($customFields);
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * Get custom message.
+     *
+     * @param mixed $class
      *
      * @return string
      */
@@ -145,11 +183,13 @@ class Log extends Model
             return 'Not defined custom message!';
         }
 
-        return $class::$logCustomMessage;
+        return trans($class::$logCustomMessage);
     }
 
     /**
      * Get custom fields.
+     *
+     * @param mixed $class
      *
      * @return string
      */
@@ -192,7 +232,8 @@ class Log extends Model
     /**
      * Message callback.
      *
-     * @param $function
+     * @param       $function
+     * @param mixed $method
      *
      * @return mixed
      */
@@ -224,12 +265,12 @@ class Log extends Model
      */
     public function getValueSegmented($object, $key, $default)
     {
-        if (is_null($key) || trim($key) == '') {
+        if (null === $key || '' == trim($key)) {
             return $default;
         }
 
         foreach (explode('.', $key) as $segment) {
-            $object = is_array($object) ? (object) $object : $object;
+            $object = \is_array($object) ? (object) $object : $object;
 
             if (!isset($object->{$segment})) {
                 return $default;

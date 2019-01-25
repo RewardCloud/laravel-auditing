@@ -1,6 +1,6 @@
 {
     "name": "owen-it/laravel-auditing",
-    "description": "Keep a change history for your models using laravel and lumen",
+    "description": "RC Custom - Keep a change history for your models using laravel and lumen",
     "keywords": ["audit", "auditing", "activity", "laravel", "log", "logging", "register", "observer", "lumen"],
     "homepage": "https://laravel-auditing.com",
     "type": "package",
